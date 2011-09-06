@@ -1,6 +1,6 @@
 /*
-  LedControl.h - A library for controling Leds with a ICM7218/ICM7228
-  Copyright (c) 2010 Mike Hogan / PJ Santoro / Hive76
+  ICM7228.h - A library for controling LEDs with a ICM7218/ICM7228
+  Copyright (c) 2010 PJ Santoro / Mike Hogan / Hive76
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -23,42 +23,38 @@
 #include <WProgram.h>
 #include <inttypes.h>
 
-// Pin usage
-#define MODE_PIN 2
-#define NOT_WRITE_PIN 3
-
-#define COL_1 4
-#define COL_2 5
-#define COL_3 6
-#define COL_4 7
-#define COL_5 8
-#define COL_6 9
-#define COL_7 10
-#define COL_8 11
-
-// Note that these pins are the same as COL_1, COL_2, COL_3, COL_8
-#define NOT_CODE_B_PIN 4
-#define NOT_DECODE_PIN 5
-#define NOT_SHUTDOWN_PIN 6
-#define DATA_COMING_PIN 11
-
 class ICM7228
 {
   private:
-    uint8_t _buffer[8];
-	static uint8_t _font[][8];
+    static uint8_t _font[][8];	// This will probably be moved out when the font info is moved out
+
+	uint8_t _buffer[8];
+
+	uint8_t _dataPins[8];
+
+	uint8_t _ramBankSelect;		// data pin id3
+	uint8_t _notShutdownPin;	// data pin id4
+	uint8_t _notDecodePin;		// data pin id5
+	uint8_t _notCodeBPin;		// data pin id6
+	uint8_t _dataComingPin;		// data pin id7
+
+	uint8_t _notWritePin;
+	uint8_t _modePin;
 
   public:
-    ICM7228();
-    void writeDot(uint8_t row, uint8_t col, uint8_t dot);
-    
+    ICM7228(uint8_t nw, uint8_t mode, 
+			uint8_t id0, uint8_t id1, uint8_t id2, uint8_t id3,
+			uint8_t id4, uint8_t id5, uint8_t id6, uint8_t id7);
+			
+    void writeDot(uint8_t row, uint8_t col, boolean dot);
     void writeRow(uint8_t row, uint8_t dot);
     void writeCol(uint8_t col, uint8_t dot);
-	void scroll(uint8_t letter);
-    
-    void refresh();
-	void controlWord();
-
+	void scrollRight(uint8_t displayData);
+	//void scrollLeft(uint8_t displayData);  add this for scrolling left
+	
+	void controlWord(boolean ramBank, boolean shutdown, boolean decode, boolean codeB, boolean data);
+	void write8bytes();
+	void shutdown();
 };
 
 #endif	//ICM7228.h
